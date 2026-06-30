@@ -12,8 +12,19 @@ export const siteSettings = defineType({
   title: 'Site Settings',
   type: 'document',
   fields: [
-    defineField({name: 'siteTitle', title: 'Site Title', type: 'string', validation: (rule) => rule.required()}),
-    defineField({name: 'siteDescription', title: 'Site Description', type: 'text', rows: 3}),
+    defineField({
+      name: 'siteTitle',
+      title: 'Site Title',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'siteDescription',
+      title: 'Site Description',
+      type: 'text',
+      rows: 3,
+      hidden: true,
+    }),
     defineField({name: 'phone', title: 'Phone Number', type: 'string'}),
     defineField({name: 'email', title: 'Email', type: 'string'}),
     defineField({name: 'instagram', title: 'Instagram URL', type: 'url'}),
@@ -38,9 +49,9 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'favicon',
-      title: 'Browser Favicon',
+      title: 'Sanity Studio Favicon',
       type: 'image',
-      description: 'Small icon shown in browser tabs. A simple blue square/circle logo works best.',
+      description: 'Small blue icon used for this editing Studio.',
       fields: [hiddenImageAlt],
     }),
     defineField({

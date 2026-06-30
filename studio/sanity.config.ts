@@ -58,28 +58,76 @@ export default defineConfig({
       },
     }),
     presentationTool({
-      previewUrl: previewBaseUrl,
+      title: 'Live Preview',
+      previewUrl: {
+        initial: previewBaseUrl,
+      },
+      allowOrigins: [
+        'https://wcashdesign.com',
+        'https://www.wcashdesign.com',
+        'https://wcashdesign.pages.dev',
+        'https://wcashdesign.sanity.studio',
+      ],
       resolve: {
+        mainDocuments: [
+          {
+            route: '/',
+            filter: `_type == "homePage" && _id == "home-page"`,
+          },
+          {
+            route: '/portfolio',
+            filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
+          },
+          {
+            route: '/portfolio/',
+            filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
+          },
+          {
+            route: '/consultation',
+            filter: `_type == "consultationPage" && _id == "consultation-page"`,
+          },
+          {
+            route: '/consultation/',
+            filter: `_type == "consultationPage" && _id == "consultation-page"`,
+          },
+          {
+            route: '/portfolio/:slug',
+            filter: `_type == "portfolioCategory" && slug.current == $slug`,
+            params: ({params}) => ({slug: params.slug}),
+          },
+          {
+            route: '/portfolio/:slug/',
+            filter: `_type == "portfolioCategory" && slug.current == $slug`,
+            params: ({params}) => ({slug: params.slug}),
+          },
+        ],
         locations: {
           siteSettings: {
             select: {},
-            resolve: () => ({locations: [{title: 'Home', href: '/'}]}),
+            resolve: () => ({message: 'Open this page in Live Preview', locations: [{title: 'Home', href: '/'}]}),
           },
           homePage: {
             select: {},
-            resolve: () => ({locations: [{title: 'Home', href: '/'}]}),
+            resolve: () => ({message: 'Open this page in Live Preview', locations: [{title: 'Home', href: '/'}]}),
           },
           portfolioPage: {
             select: {},
-            resolve: () => ({locations: [{title: 'Portfolio', href: '/portfolio/'}]}),
+            resolve: () => ({
+              message: 'Open this page in Live Preview',
+              locations: [{title: 'Portfolio', href: '/portfolio/'}],
+            }),
           },
           consultationPage: {
             select: {},
-            resolve: () => ({locations: [{title: 'Consultation', href: '/consultation/'}]}),
+            resolve: () => ({
+              message: 'Open this page in Live Preview',
+              locations: [{title: 'Consultation', href: '/consultation/'}],
+            }),
           },
           portfolioCategory: {
             select: {title: 'title', slug: 'slug.current'},
             resolve: ({title, slug}) => ({
+              message: 'Open this page in Live Preview',
               locations: [
                 {
                   title: title || 'Portfolio category',

@@ -16,9 +16,9 @@ export const homePage = defineType({
     defineField({name: 'heroTitle', title: 'Hero Title', type: 'string', validation: (rule) => rule.required()}),
     defineField({name: 'heroText', title: 'Hero Text', type: 'text', rows: 4}),
     defineField({name: 'primaryAction', title: 'Primary Button Text', type: 'string'}),
-    defineField({name: 'primaryActionLink', title: 'Primary Button Link', type: 'string'}),
+    defineField({name: 'primaryActionLink', title: 'Primary Button Link', type: 'string', hidden: true}),
     defineField({name: 'secondaryAction', title: 'Secondary Button Text', type: 'string'}),
-    defineField({name: 'secondaryActionLink', title: 'Secondary Button Link', type: 'string'}),
+    defineField({name: 'secondaryActionLink', title: 'Secondary Button Link', type: 'string', hidden: true}),
     defineField({
       name: 'featuredImages',
       title: 'Hero Featured Images',
