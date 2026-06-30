@@ -1,0 +1,26 @@
+---
+import {siteSettings as fallbackSiteSettings} from '../data/site'
+import type {ResolvedSiteSettings} from '../data/sanity'
+
+type Props = {
+  settings?: ResolvedSiteSettings
+}
+
+const {settings = fallbackSiteSettings} = Astro.props
+---
+<footer class="site-footer">
+  <div>
+    <img src={settings.circleLogo} alt="" />
+    <p>WCashDesign</p>
+    <span>AI edits, image restorations, custom graphics, and visual keepsakes.</span>
+  </div>
+  <nav aria-label="Footer contact links">
+    <a href={settings.instagram} target="_blank" rel="noreferrer">Instagram</a>
+    <a href={settings.phoneHref}>{settings.phoneDisplay}</a>
+    <a href={`mailto:${settings.email}`}>{settings.email}</a>
+  </nav>
+  <small class="site-credit">
+    Website Designed by
+    <a href="https://www.cashwebstudio.com/" target="_blank" rel="noreferrer">Cash Web Studio</a>
+  </small>
+</footer>

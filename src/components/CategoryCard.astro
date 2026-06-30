@@ -1,0 +1,22 @@
+---
+import type {Category} from '../data/site'
+import {assetPath} from '../utils/paths'
+
+type Props = {
+  category: Category
+  index?: number
+}
+
+const {category, index = 0} = Astro.props
+---
+<a class={`category-card category-${category.slug}`} href={`/portfolio/${category.slug}/`} data-reveal style={`--delay:${index * 18}ms`}>
+  <div class="category-image">
+    <img src={assetPath(category.previewImage)} alt={category.title} loading={index > 2 ? 'lazy' : 'eager'} />
+    <span>View more</span>
+  </div>
+  <div class="category-copy">
+    <p>{category.shortTitle}</p>
+    <h3>{category.title}</h3>
+    <span>{category.phrase}</span>
+  </div>
+</a>

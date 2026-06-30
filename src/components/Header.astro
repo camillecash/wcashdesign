@@ -1,0 +1,64 @@
+---
+import {categories as fallbackCategories, siteSettings as fallbackSiteSettings, type Category} from '../data/site'
+import type {ResolvedSiteSettings} from '../data/sanity'
+
+type Props = {
+  current?: string
+  settings?: ResolvedSiteSettings
+  categories?: Category[]
+}
+
+const {current = 'home', settings = fallbackSiteSettings, categories = fallbackCategories} = Astro.props
+const links = [
+  {label: 'Home', href: '/', key: 'home'},
+  {label: 'Portfolio', href: '/portfolio/', key: 'portfolio'},
+  {label: 'Consultation ↗', href: '/consultation/', key: 'consultation', cta: true},
+]
+---
+<header class="site-header">
+  <a class="brand" href="/" aria-label="WCashDesign home">
+    <span class="brand-backdrop">
+      <img src={settings.logo} alt="WCashDesign" />
+    </span>
+  </a>
+  <nav class="desktop-nav" aria-label="Main navigation">
+    {links.map((link) => (
+      <a class={link.cta ? 'nav-cta' : undefined} href={link.href} aria-current={current === link.key ? 'page' : undefined}>{link.label}</a>
+    ))}
+  </nav>
+  <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" data-menu-toggle>
+    <span></span><span></span><span></span>
+  </button>
+  <div class="slide-menu" data-slide-menu>
+    <div class="slide-menu-panel">
+      <div class="slide-menu-top">
+        <img src={settings.squareLogo} alt="" />
+        <button type="button" aria-label="Close menu" data-menu-close>Close</button>
+      </div>
+      <nav aria-label="Mobile navigation">
+        {links.map((link) => <a class={link.cta ? 'nav-cta' : undefined} href={link.href}>{link.label}</a>)}
+      </nav>
+      <div class="slide-categories">
+        <p>Portfolio categories</p>
+        {categories.map((category) => <a href={`/portfolio/${category.slug}/`}>{category.title}</a>)}
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector('[data-menu-toggle]')
+  const close = document.querySelector('[data-menu-close]')
+  const menu = document.querySelector('[data-slide-menu]')
+  const setOpen = (open: boolean) => {
+    menu?.classList.toggle('is-open', open)
+    toggle?.classList.toggle('is-hidden', open)
+    toggle?.setAttribute('aria-expanded', open ? 'true' : 'false')
+    document.body.classList.toggle('menu-open', open)
+  }
+  toggle?.addEventListener('click', () => setOpen(!menu?.classList.contains('is-open')))
+  close?.addEventListener('click', () => setOpen(false))
+  menu?.addEventListener('click', (event) => {
+    if (event.target === menu) setOpen(false)
+  })
+</script>

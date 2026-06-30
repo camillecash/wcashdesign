@@ -1,0 +1,63 @@
+---
+import '../styles/global.css'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import {siteSettings} from '../data/site'
+import {getCategories, getSiteSettings} from '../data/sanity'
+
+type Props = {
+  title?: string
+  description?: string
+  current?: 'home' | 'portfolio' | 'consultation'
+}
+
+const {
+  title = siteSettings.title,
+  description = siteSettings.description,
+  current = 'home',
+} = Astro.props
+
+const settings = await getSiteSettings()
+const navCategories = await getCategories()
+const pageDescription = description || settings.description
+const pageTitle = title === siteSettings.title || title === settings.title ? settings.title : `${title} | ${settings.title}`
+const previewImage = settings.socialPreviewImage || settings.squareLogo
+const absolutePreviewImage = previewImage.startsWith('http') ? previewImage : `${settings.url}${previewImage}`
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={pageDescription} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={settings.url} />
+    <meta property="og:image" content={absolutePreviewImage} />
+    <link rel="icon" type="image/png" href={settings.circleLogo} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <Header current={current} settings={settings} categories={navCategories} />
+      <slot />
+      <Footer settings={settings} />
+    </div>
+    <script is:inline>
+      const revealItems = document.querySelectorAll('[data-reveal]')
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible')
+              observer.unobserve(entry.target)
+            }
+          })
+        },
+        {threshold: 0.12}
+      )
+      revealItems.forEach((item) => observer.observe(item))
+    </script>
+  </body>
+</html>

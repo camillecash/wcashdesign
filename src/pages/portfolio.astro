@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import CategoryCard from '../components/CategoryCard.astro'
+import {getCategories} from '../data/sanity'
+
+const categories = await getCategories()
+---
+<BaseLayout title="Portfolio" current="portfolio">
+  <main>
+    <section class="page-hero">
+      <p class="kicker">Portfolio</p>
+      <h1>Image work designed to be seen, shared, and remembered.</h1>
+      <p>Browse by category. Each section opens into a larger gallery where images can be viewed full-size.</p>
+    </section>
+    <section class="section portfolio-list-section">
+      <div class="category-grid portfolio-grid">
+        {categories.map((category, index) => <CategoryCard category={category} index={index} />)}
+      </div>
+    </section>
+  </main>
+</BaseLayout>

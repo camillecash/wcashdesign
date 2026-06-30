@@ -1,0 +1,56 @@
+<div class="lightbox" data-lightbox hidden>
+  <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close image">×</button>
+  <button class="lightbox-nav prev" type="button" data-lightbox-prev aria-label="Previous image">‹</button>
+  <figure>
+    <img src="" alt="" data-lightbox-image />
+    <figcaption data-lightbox-caption></figcaption>
+  </figure>
+  <button class="lightbox-nav next" type="button" data-lightbox-next aria-label="Next image">›</button>
+</div>
+
+<script>
+  const buttons = Array.from(document.querySelectorAll('[data-gallery-button]'))
+  const lightbox = document.querySelector('[data-lightbox]')
+  const image = document.querySelector('[data-lightbox-image]') as HTMLImageElement | null
+  const caption = document.querySelector('[data-lightbox-caption]')
+  const close = document.querySelector('[data-lightbox-close]')
+  const prev = document.querySelector('[data-lightbox-prev]')
+  const next = document.querySelector('[data-lightbox-next]')
+  let activeIndex = 0
+
+  const open = (index: number) => {
+    const button = buttons[index] as HTMLElement | undefined
+    if (!button || !lightbox || !image || !caption) return
+    activeIndex = index
+    image.src = button.dataset.full || ''
+    image.alt = button.dataset.alt || ''
+    caption.textContent = button.dataset.caption || button.dataset.alt || ''
+    lightbox.removeAttribute('hidden')
+    document.body.classList.add('lightbox-open')
+  }
+
+  const hide = () => {
+    lightbox?.setAttribute('hidden', '')
+    document.body.classList.remove('lightbox-open')
+  }
+
+  const move = (direction: number) => {
+    if (!buttons.length) return
+    activeIndex = (activeIndex + direction + buttons.length) % buttons.length
+    open(activeIndex)
+  }
+
+  buttons.forEach((button, index) => button.addEventListener('click', () => open(index)))
+  close?.addEventListener('click', hide)
+  prev?.addEventListener('click', () => move(-1))
+  next?.addEventListener('click', () => move(1))
+  lightbox?.addEventListener('click', (event) => {
+    if (event.target === lightbox) hide()
+  })
+  window.addEventListener('keydown', (event) => {
+    if (lightbox?.hasAttribute('hidden')) return
+    if (event.key === 'Escape') hide()
+    if (event.key === 'ArrowLeft') move(-1)
+    if (event.key === 'ArrowRight') move(1)
+  })
+</script>

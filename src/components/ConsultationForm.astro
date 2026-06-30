@@ -1,0 +1,54 @@
+---
+import {siteSettings} from '../data/site'
+import type {ResolvedConsultationPage} from '../data/sanity'
+
+type Props = {
+  endpoint?: string
+  form?: ResolvedConsultationPage
+}
+
+const {endpoint = siteSettings.formspreeEndpoint, form} = Astro.props
+const labels = {
+  formTitle: form?.formTitle,
+  nameLabel: form?.nameLabel || 'Name',
+  contactLabel: form?.contactLabel || 'Email or phone',
+  projectTypeLabel: form?.projectTypeLabel || 'What do you want made?',
+  projectTypeOptions: form?.projectTypeOptions?.length
+    ? form.projectTypeOptions
+    : [
+        'AI creation or edit',
+        'Photo restoration',
+        'Flyer or poster',
+        'Logo',
+        'Magazine or newspaper mockup',
+        'Movie poster or book cover',
+        'Professional headshot',
+        'Something else',
+      ],
+  messageLabel: form?.messageLabel || 'Project details',
+  messagePlaceholder: form?.messagePlaceholder || 'Tell me what you want created, restored, or changed.',
+  submitButtonLabel: form?.submitButtonLabel || 'Send consultation request',
+}
+---
+<form class="contact-form" action={endpoint} method="POST">
+  {labels.formTitle && <h2>{labels.formTitle}</h2>}
+  <label>
+    {labels.nameLabel}
+    <input type="text" name="name" autocomplete="name" required />
+  </label>
+  <label>
+    {labels.contactLabel}
+    <input type="text" name="contact" autocomplete="email" required />
+  </label>
+  <label>
+    {labels.projectTypeLabel}
+    <select name="projectType">
+      {labels.projectTypeOptions.map((option) => <option>{option}</option>)}
+    </select>
+  </label>
+  <label>
+    {labels.messageLabel}
+    <textarea name="message" rows="6" placeholder={labels.messagePlaceholder} required></textarea>
+  </label>
+  <button class="button" type="submit">{labels.submitButtonLabel}</button>
+</form>
