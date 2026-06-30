@@ -27,7 +27,6 @@ export const homePage = defineType({
       of: [
         {
           type: 'image',
-          options: {hotspot: true},
           fields: [hiddenImageAlt],
         },
       ],
@@ -56,7 +55,6 @@ export const homePage = defineType({
       name: 'aboutImage',
       title: 'About Image',
       type: 'image',
-      options: {hotspot: true},
       fields: [hiddenImageAlt],
     }),
     defineField({name: 'contactLabel', title: 'Contact Links Label', type: 'string'}),

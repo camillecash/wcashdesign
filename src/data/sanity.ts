@@ -2,6 +2,7 @@ import {
   categories as fallbackCategories,
   consultationPage as fallbackConsultationPage,
   homePage as fallbackHomePage,
+  portfolioPage as fallbackPortfolioPage,
   siteSettings as fallbackSiteSettings,
   type Category,
   type GalleryImage,
@@ -21,6 +22,7 @@ export type ResolvedHomePage = typeof fallbackHomePage & {
 export type ResolvedConsultationPage = typeof fallbackConsultationPage & {
   formspreeEndpoint?: string
 }
+export type ResolvedPortfolioPage = typeof fallbackPortfolioPage
 
 type SanityImage = {
   src?: string
@@ -90,6 +92,7 @@ function slugify(value: string) {
 
 let siteSettingsPromise: Promise<ResolvedSiteSettings> | undefined
 let homePagePromise: Promise<ResolvedHomePage> | undefined
+let portfolioPagePromise: Promise<ResolvedPortfolioPage> | undefined
 let categoriesPromise: Promise<Category[]> | undefined
 let consultationPagePromise: Promise<ResolvedConsultationPage> | undefined
 
@@ -103,6 +106,8 @@ export function getSiteSettings() {
       instagram?: string
       headerLogo?: SanityImage
       footerLogo?: SanityImage
+      menuLogo?: SanityImage
+      favicon?: SanityImage
       socialPreviewImage?: SanityImage
     }>(`*[_type == "siteSettings" && _id == "site-settings"][0]{
       siteTitle,
@@ -112,6 +117,8 @@ export function getSiteSettings() {
       instagram,
       headerLogo{alt, "url": asset->url},
       footerLogo{alt, "url": asset->url},
+      menuLogo{alt, "url": asset->url},
+      favicon{alt, "url": asset->url},
       socialPreviewImage{alt, "url": asset->url}
     }`)
 
@@ -130,12 +137,37 @@ export function getSiteSettings() {
       instagram: data.instagram || fallbackSiteSettings.instagram,
       logo: imageUrl(data.headerLogo, fallbackSiteSettings.logo),
       circleLogo: imageUrl(data.footerLogo, fallbackSiteSettings.circleLogo),
-      squareLogo: socialPreviewImage,
+      squareLogo: imageUrl(data.menuLogo, fallbackSiteSettings.squareLogo),
+      favicon: imageUrl(data.favicon, fallbackSiteSettings.favicon),
       socialPreviewImage,
     }
   })()
 
   return siteSettingsPromise
+}
+
+export function getPortfolioPage() {
+  portfolioPagePromise ??= (async () => {
+    const data = await sanityFetch<{
+      eyebrow?: string
+      title?: string
+      intro?: string
+    }>(`*[_type == "portfolioPage" && _id == "portfolio-page"][0]{
+      eyebrow,
+      title,
+      intro
+    }`)
+
+    if (!data) return fallbackPortfolioPage
+
+    return {
+      eyebrow: data.eyebrow || fallbackPortfolioPage.eyebrow,
+      title: data.title || fallbackPortfolioPage.title,
+      intro: data.intro || fallbackPortfolioPage.intro,
+    }
+  })()
+
+  return portfolioPagePromise
 }
 
 export function getHomePage() {
@@ -228,7 +260,6 @@ export function getCategories() {
         title?: string
         shortTitle?: string
         slug?: string
-        phrase?: string
         description?: string
         previewImage?: SanityImage
         gallery?: SanityImage[]
@@ -237,7 +268,6 @@ export function getCategories() {
       title,
       shortTitle,
       "slug": slug.current,
-      phrase,
       description,
       previewImage{alt, "src": asset->url},
       gallery[]{alt, caption, "src": asset->url}
@@ -258,7 +288,6 @@ export function getCategories() {
           title,
           shortTitle: item.shortTitle || fallback?.shortTitle || title,
           slug: derivedSlug || slugify(title),
-          phrase: item.phrase || fallback?.phrase || '',
           description: item.description || fallback?.description || '',
           previewImage: imageUrl(item.previewImage, fallback?.previewImage || images[0]?.src || ''),
           images,

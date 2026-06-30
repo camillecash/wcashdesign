@@ -8,7 +8,6 @@ export type Category = {
   title: string
   slug: string
   shortTitle: string
-  phrase: string
   description: string
   previewImage: string
   images: GalleryImage[]
@@ -27,6 +26,7 @@ export const siteSettings = {
   logo: '/assets/Home/wcashdesign-header-logo-wide.png',
   squareLogo: '/assets/Home/light-logo-square.png',
   circleLogo: '/assets/Home/light-logo-circle.png',
+  favicon: '/assets/Home/light-logo-square.png',
   socialPreviewImage: '/assets/Home/light-logo-square.png',
 }
 
@@ -63,12 +63,17 @@ export const homePage = {
     'I can help shape the right visual direction — restoration, flyer, headshot, logo, mock cover, or something completely custom.',
 }
 
+export const portfolioPage = {
+  eyebrow: 'Portfolio',
+  title: 'Image work designed to be seen, shared, and remembered.',
+  intro: 'Browse by category. Each section opens into a larger gallery where images can be viewed full-size.',
+}
+
 export const categories: Category[] = [
   {
     title: 'Restorations',
     shortTitle: 'Restorations',
     slug: 'restorations',
-    phrase: 'Old, damaged, or faded photos refreshed with care.',
     description:
       'Photo restoration and enhancement for family images, keepsakes, and meaningful memories.',
     previewImage: '/assets/Restorations/10res04.png',
@@ -82,7 +87,6 @@ export const categories: Category[] = [
     title: 'Creations and Edits',
     shortTitle: 'Creations',
     slug: 'creations-and-edits',
-    phrase: 'Original AI scenes, stylized edits, and imaginative transformations.',
     description:
       'Custom AI-assisted visuals for portraits, concepts, occasions, and one-of-one creative ideas.',
     previewImage: '/assets/Creations and Edits/05creat02.png',
@@ -103,7 +107,6 @@ export const categories: Category[] = [
     title: 'Flyers & Posters',
     shortTitle: 'Flyers',
     slug: 'flyers-posters',
-    phrase: 'Event-ready flyers and bold poster-style graphics.',
     description:
       'Promotional designs for events, announcements, personal brands, and creative campaigns.',
     previewImage: '/assets/Flyers & Posters/05.png',
@@ -122,7 +125,6 @@ export const categories: Category[] = [
     title: 'Logos',
     shortTitle: 'Logos',
     slug: 'logos',
-    phrase: 'Clean marks and brand graphics for ideas that need an identity.',
     description:
       'Logo concepts and graphic marks for businesses, events, personal brands, and creative projects.',
     previewImage: '/assets/Logos/05logo02.png',
@@ -139,7 +141,6 @@ export const categories: Category[] = [
     title: 'Magazines & Newspaper Mockups',
     shortTitle: 'Mock Covers',
     slug: 'magazines-newspaper-mockups',
-    phrase: 'Magazine and newspaper-style covers with your image at the center.',
     description:
       'Personalized mock publications for gifts, milestones, promotions, celebrations, and keepsakes.',
     previewImage: '/assets/Magazines & Newspaper Mockups/11magazine06.png',
@@ -156,7 +157,6 @@ export const categories: Category[] = [
     title: 'Movie Poster & Book Mockups',
     shortTitle: 'Posters & Books',
     slug: 'movie-poster-book-mockups',
-    phrase: 'Cinematic posters and book-cover concepts starring your image.',
     description:
       'Mock movie flyers, dramatic posters, and book-cover designs for gifts, promos, or pure fun.',
     previewImage: '/assets/Movie Poster & Book Mockups/05movie003.png',
@@ -174,7 +174,6 @@ export const categories: Category[] = [
     title: 'Professional Headshots',
     shortTitle: 'Headshots',
     slug: 'professional-headshots',
-    phrase: 'Business-ready headshots created from everyday photos.',
     description:
       'Professional portrait transformations for profiles, resumes, websites, and business branding.',
     previewImage: '/assets/Professional Headshots/10head04.png',

@@ -28,14 +28,12 @@ export const portfolioCategory = defineType({
       options: {source: 'title'},
       hidden: true,
     }),
-    defineField({name: 'phrase', title: 'Short Phrase', type: 'string'}),
     defineField({name: 'description', title: 'Description', type: 'text', rows: 3}),
     defineField({
       name: 'previewImage',
       title: 'Preview Image',
       type: 'image',
       description: 'This is the image used on the portfolio overview card. Change it without changing the full gallery.',
-      options: {hotspot: true},
       fields: [hiddenImageAlt],
     }),
     defineField({
@@ -44,16 +42,14 @@ export const portfolioCategory = defineType({
       type: 'array',
       description: 'Drag images to reorder. Add or delete images as needed. The website keeps the layout polished automatically.',
       of: [
-        defineField({
-          name: 'galleryImage',
+        {
           title: 'Gallery Image',
           type: 'image',
-          options: {hotspot: true},
           fields: [
             hiddenImageAlt,
             defineField({name: 'caption', title: 'Caption', type: 'string'}),
           ],
-        }),
+        },
       ],
     }),
     defineField({
@@ -73,7 +69,7 @@ export const portfolioCategory = defineType({
   preview: {
     select: {
       title: 'title',
-      subtitle: 'phrase',
+      subtitle: 'description',
       media: 'previewImage',
     },
   },

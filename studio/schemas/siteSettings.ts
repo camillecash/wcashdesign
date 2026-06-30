@@ -1,5 +1,12 @@
 import {defineField, defineType} from 'sanity'
 
+const hiddenImageAlt = defineField({
+  name: 'alt',
+  title: 'Alt Text',
+  type: 'string',
+  hidden: true,
+})
+
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
@@ -14,22 +21,33 @@ export const siteSettings = defineType({
       name: 'headerLogo',
       title: 'Header Logo',
       type: 'image',
-      options: {hotspot: true},
-      fields: [defineField({name: 'alt', title: 'Alt Text', type: 'string'})],
+      fields: [hiddenImageAlt],
     }),
     defineField({
       name: 'footerLogo',
       title: 'Footer Logo',
       type: 'image',
-      options: {hotspot: true},
-      fields: [defineField({name: 'alt', title: 'Alt Text', type: 'string'})],
+      fields: [hiddenImageAlt],
+    }),
+    defineField({
+      name: 'menuLogo',
+      title: 'Hamburger Menu Logo',
+      type: 'image',
+      description: 'Logo shown at the top of the mobile menu.',
+      fields: [hiddenImageAlt],
+    }),
+    defineField({
+      name: 'favicon',
+      title: 'Browser Favicon',
+      type: 'image',
+      description: 'Small icon shown in browser tabs. A simple blue square/circle logo works best.',
+      fields: [hiddenImageAlt],
     }),
     defineField({
       name: 'socialPreviewImage',
       title: 'Social Preview Image',
       type: 'image',
-      options: {hotspot: true},
-      fields: [defineField({name: 'alt', title: 'Alt Text', type: 'string'})],
+      fields: [hiddenImageAlt],
     }),
   ],
   preview: {

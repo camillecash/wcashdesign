@@ -2,7 +2,14 @@ import {createClient} from '@sanity/client'
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
-import {categories, consultationPage, homePage, siteSettings, type GalleryImage} from '../../src/data/site'
+import {
+  categories,
+  consultationPage,
+  homePage,
+  portfolioPage,
+  siteSettings,
+  type GalleryImage,
+} from '../../src/data/site'
 
 const projectId = 'mg9lwf9m'
 const dataset = 'production'
@@ -70,6 +77,8 @@ async function main() {
     instagram: siteSettings.instagram,
     headerLogo: await uploadImage(siteSettings.logo, 'WCashDesign header logo'),
     footerLogo: await uploadImage(siteSettings.circleLogo, 'WCashDesign footer logo'),
+    menuLogo: await uploadImage(siteSettings.squareLogo, 'WCashDesign mobile menu logo'),
+    favicon: await uploadImage(siteSettings.favicon, 'WCashDesign favicon'),
     socialPreviewImage: await uploadImage(siteSettings.socialPreviewImage, 'WCashDesign social preview'),
   })
   console.log('✓ Site settings')
@@ -130,6 +139,15 @@ async function main() {
   })
   console.log('✓ Consultation page')
 
+  await client.createOrReplace({
+    _id: 'portfolio-page',
+    _type: 'portfolioPage',
+    eyebrow: portfolioPage.eyebrow,
+    title: portfolioPage.title,
+    intro: portfolioPage.intro,
+  })
+  console.log('✓ Portfolio page')
+
   for (const [index, category] of categories.entries()) {
     await client.createOrReplace({
       _id: `portfolio-category-${category.slug}`,
@@ -140,7 +158,6 @@ async function main() {
         _type: 'slug',
         current: category.slug,
       },
-      phrase: category.phrase,
       description: category.description,
       order: index + 1,
       hidden: false,

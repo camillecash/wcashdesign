@@ -1,12 +1,14 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
+import {presentationTool} from 'sanity/presentation'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
 import {PreviewPane} from './components/PreviewPane'
 
 const projectId = 'mg9lwf9m'
 const dataset = 'production'
-const previewableTypes = ['siteSettings', 'homePage', 'portfolioCategory', 'consultationPage']
+const previewBaseUrl = 'https://wcashdesign.com'
+const previewableTypes = ['siteSettings', 'homePage', 'portfolioPage', 'portfolioCategory', 'consultationPage']
 
 export default defineConfig({
   name: 'wcashdesign',
@@ -39,6 +41,9 @@ export default defineConfig({
               .title('Home Page')
               .child(previewableDocument('homePage', 'home-page')),
             S.listItem()
+              .title('Portfolio Page')
+              .child(previewableDocument('portfolioPage', 'portfolio-page')),
+            S.listItem()
               .title('Portfolio Categories')
               .child(
                 S.documentTypeList('portfolioCategory')
@@ -50,6 +55,40 @@ export default defineConfig({
               .title('Consultation Page')
               .child(previewableDocument('consultationPage', 'consultation-page')),
           ])
+      },
+    }),
+    presentationTool({
+      previewUrl: previewBaseUrl,
+      resolve: {
+        locations: {
+          siteSettings: {
+            select: {},
+            resolve: () => ({locations: [{title: 'Home', href: '/'}]}),
+          },
+          homePage: {
+            select: {},
+            resolve: () => ({locations: [{title: 'Home', href: '/'}]}),
+          },
+          portfolioPage: {
+            select: {},
+            resolve: () => ({locations: [{title: 'Portfolio', href: '/portfolio/'}]}),
+          },
+          consultationPage: {
+            select: {},
+            resolve: () => ({locations: [{title: 'Consultation', href: '/consultation/'}]}),
+          },
+          portfolioCategory: {
+            select: {title: 'title', slug: 'slug.current'},
+            resolve: ({title, slug}) => ({
+              locations: [
+                {
+                  title: title || 'Portfolio category',
+                  href: slug ? `/portfolio/${slug}/` : '/portfolio/',
+                },
+              ],
+            }),
+          },
+        },
       },
     }),
     visionTool(),

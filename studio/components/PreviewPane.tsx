@@ -41,6 +41,14 @@ export function PreviewPane() {
         return
       }
 
+      if (documentType === 'portfolioPage') {
+        if (isMounted) {
+          setUrl(withBase('/portfolio/'))
+          setIsLoading(false)
+        }
+        return
+      }
+
       if (documentType === 'consultationPage') {
         if (isMounted) {
           setUrl(withBase('/consultation/'))
