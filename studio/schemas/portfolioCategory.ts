@@ -11,6 +11,9 @@ export const portfolioCategory = defineType({
   name: 'portfolioCategory',
   title: 'Portfolio Category',
   type: 'document',
+  initialValue: {
+    hidden: false,
+  },
   orderings: [
     {
       title: 'Manual order',
@@ -34,6 +37,7 @@ export const portfolioCategory = defineType({
       title: 'Preview Image',
       type: 'image',
       description: 'This is the image used on the portfolio overview card. Change it without changing the full gallery.',
+      options: {hotspot: false},
       fields: [hiddenImageAlt],
     }),
     defineField({
@@ -45,6 +49,7 @@ export const portfolioCategory = defineType({
         {
           title: 'Gallery Image',
           type: 'image',
+          options: {hotspot: false},
           fields: [
             hiddenImageAlt,
             defineField({name: 'caption', title: 'Caption', type: 'string'}),

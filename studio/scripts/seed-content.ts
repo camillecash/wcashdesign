@@ -78,7 +78,6 @@ async function main() {
     headerLogo: await uploadImage(siteSettings.logo, 'WCashDesign header logo'),
     footerLogo: await uploadImage(siteSettings.circleLogo, 'WCashDesign footer logo'),
     menuLogo: await uploadImage(siteSettings.squareLogo, 'WCashDesign mobile menu logo'),
-    favicon: await uploadImage(siteSettings.favicon, 'WCashDesign favicon'),
     socialPreviewImage: await uploadImage(siteSettings.socialPreviewImage, 'WCashDesign social preview'),
   })
   console.log('✓ Site settings')
@@ -125,6 +124,7 @@ async function main() {
   await client.createOrReplace({
     _id: 'consultation-page',
     _type: 'consultationPage',
+    eyebrow: consultationPage.eyebrow,
     title: consultationPage.title,
     intro: consultationPage.intro,
     formspreeEndpoint: siteSettings.formspreeEndpoint,
@@ -145,6 +145,11 @@ async function main() {
     eyebrow: portfolioPage.eyebrow,
     title: portfolioPage.title,
     intro: portfolioPage.intro,
+    categoryOrder: categories.map((category, index) => ({
+      _key: `category-${index}`,
+      _type: 'reference',
+      _ref: `portfolio-category-${category.slug}`,
+    })),
   })
   console.log('✓ Portfolio page')
 

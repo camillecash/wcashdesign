@@ -65,6 +65,19 @@ select {
   overflow-y: visible;
 }
 
+.preview-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.55rem 1rem;
+  text-align: center;
+  color: #fffdf7;
+  background: linear-gradient(135deg, #1557ff, #0e347d);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
 .site-header {
   position: sticky;
   top: 0;

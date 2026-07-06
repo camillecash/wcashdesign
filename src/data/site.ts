@@ -26,6 +26,7 @@ export const siteSettings = {
   logo: '/assets/Home/wcashdesign-header-logo-wide.png',
   squareLogo: '/assets/Home/light-logo-square.png',
   circleLogo: '/assets/Home/light-logo-circle.png',
+  menuLogo: '/assets/Home/light-logo-square.png',
   favicon: '/assets/Home/light-logo-square.png',
   socialPreviewImage: '/assets/Home/light-logo-square.png',
 }
@@ -187,6 +188,7 @@ export const categories: Category[] = [
 ]
 
 export const consultationPage = {
+  eyebrow: 'Consultation',
   title: 'Start a custom image project',
   intro:
     'Tell me what you want created, restored, or transformed. Share the occasion, image type, timeline, and the best way to reach you.',

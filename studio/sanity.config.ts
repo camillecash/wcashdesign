@@ -9,6 +9,7 @@ const projectId = 'mg9lwf9m'
 const dataset = 'production'
 const previewBaseUrl = 'https://wcashdesign.com'
 const previewableTypes = ['siteSettings', 'homePage', 'portfolioPage', 'portfolioCategory', 'consultationPage']
+const previewPath = (path: string) => `/preview${path === '/' ? '/' : path}`
 
 export default defineConfig({
   name: 'wcashdesign',
@@ -60,7 +61,7 @@ export default defineConfig({
     presentationTool({
       title: 'Live Preview',
       previewUrl: {
-        initial: previewBaseUrl,
+        initial: `${previewBaseUrl}/preview/`,
       },
       allowOrigins: [
         'https://wcashdesign.com',
@@ -75,6 +76,14 @@ export default defineConfig({
             filter: `_type == "homePage" && _id == "home-page"`,
           },
           {
+            route: '/preview',
+            filter: `_type == "homePage" && _id == "home-page"`,
+          },
+          {
+            route: '/preview/',
+            filter: `_type == "homePage" && _id == "home-page"`,
+          },
+          {
             route: '/portfolio',
             filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
           },
@@ -83,11 +92,27 @@ export default defineConfig({
             filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
           },
           {
+            route: '/preview/portfolio',
+            filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
+          },
+          {
+            route: '/preview/portfolio/',
+            filter: `_type == "portfolioPage" && _id == "portfolio-page"`,
+          },
+          {
             route: '/consultation',
             filter: `_type == "consultationPage" && _id == "consultation-page"`,
           },
           {
             route: '/consultation/',
+            filter: `_type == "consultationPage" && _id == "consultation-page"`,
+          },
+          {
+            route: '/preview/consultation',
+            filter: `_type == "consultationPage" && _id == "consultation-page"`,
+          },
+          {
+            route: '/preview/consultation/',
             filter: `_type == "consultationPage" && _id == "consultation-page"`,
           },
           {
@@ -100,41 +125,62 @@ export default defineConfig({
             filter: `_type == "portfolioCategory" && slug.current == $slug`,
             params: ({params}) => ({slug: params.slug}),
           },
+          {
+            route: '/preview/portfolio/:slug',
+            filter: `_type == "portfolioCategory" && slug.current == $slug`,
+            params: ({params}) => ({slug: params.slug}),
+          },
+          {
+            route: '/preview/portfolio/:slug/',
+            filter: `_type == "portfolioCategory" && slug.current == $slug`,
+            params: ({params}) => ({slug: params.slug}),
+          },
         ],
         locations: {
           siteSettings: {
             select: {},
-            resolve: () => ({message: 'Open this page in Live Preview', locations: [{title: 'Home', href: '/'}]}),
+            resolve: () => ({
+              message: 'Open this page in Live Preview',
+              locations: [{title: 'Preview Home Page', href: previewPath('/')}],
+            }),
           },
           homePage: {
             select: {},
-            resolve: () => ({message: 'Open this page in Live Preview', locations: [{title: 'Home', href: '/'}]}),
+            resolve: () => ({
+              message: 'Open this page in Live Preview',
+              locations: [{title: 'Preview Home Page', href: previewPath('/')}],
+            }),
           },
           portfolioPage: {
             select: {},
             resolve: () => ({
               message: 'Open this page in Live Preview',
-              locations: [{title: 'Portfolio', href: '/portfolio/'}],
+              locations: [{title: 'Preview Portfolio Page', href: previewPath('/portfolio/')}],
             }),
           },
           consultationPage: {
             select: {},
             resolve: () => ({
               message: 'Open this page in Live Preview',
-              locations: [{title: 'Consultation', href: '/consultation/'}],
+              locations: [{title: 'Preview Consultation Page', href: previewPath('/consultation/')}],
             }),
           },
           portfolioCategory: {
             select: {title: 'title', slug: 'slug.current'},
-            resolve: ({title, slug}) => ({
-              message: 'Open this page in Live Preview',
-              locations: [
-                {
-                  title: title || 'Portfolio category',
-                  href: slug ? `/portfolio/${slug}/` : '/portfolio/',
-                },
-              ],
-            }),
+            resolve: (doc) => {
+              const title = doc?.title || 'Portfolio category'
+              const slug = doc?.slug
+
+              return {
+                message: 'Open this page in Live Preview',
+                locations: [
+                  {
+                    title: `Preview ${title}`,
+                    href: slug ? previewPath(`/portfolio/${slug}/`) : previewPath('/portfolio/'),
+                  },
+                ],
+              }
+            },
           },
         },
       },

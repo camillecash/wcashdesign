@@ -1,0 +1,24 @@
+---
+export const prerender = false
+
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import HomePage from '../../components/pages/HomePage.astro'
+import {siteSettings as fallbackSiteSettings} from '../../data/site'
+import {getCategories, getConsultationPage, getHomePage, getSiteSettings} from '../../data/sanity'
+import {previewOptions} from '../../utils/preview'
+
+const options = previewOptions(Astro)
+const categories = await getCategories(options)
+const homePage = await getHomePage(options)
+const siteSettings = await getSiteSettings(options)
+const consultationPage = await getConsultationPage(options)
+---
+<BaseLayout title={siteSettings.title || fallbackSiteSettings.title} current="home" isPreview>
+  <HomePage
+    categories={categories}
+    homePage={homePage}
+    siteSettings={siteSettings}
+    consultationPage={consultationPage}
+    isPreview
+  />
+</BaseLayout>

@@ -12,7 +12,13 @@ const projectId = 'mg9lwf9m'
 const dataset = 'production'
 const apiVersion = '2026-06-29'
 const useSanity = import.meta.env.USE_SANITY !== 'false'
-const queryEndpoint = `https://${projectId}.apicdn.sanity.io/v${apiVersion}/data/query/${dataset}`
+const cdnQueryEndpoint = `https://${projectId}.apicdn.sanity.io/v${apiVersion}/data/query/${dataset}`
+const apiQueryEndpoint = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}`
+
+export type SanityFetchOptions = {
+  preview?: boolean
+  token?: string
+}
 
 export type ResolvedSiteSettings = typeof fallbackSiteSettings
 export type ResolvedHomePage = typeof fallbackHomePage & {
@@ -31,19 +37,31 @@ type SanityImage = {
   caption?: string
 }
 
-async function sanityFetch<T>(query: string, params: Record<string, string | number> = {}) {
+async function sanityFetch<T>(
+  query: string,
+  params: Record<string, string | number> = {},
+  options: SanityFetchOptions = {}
+) {
   if (!useSanity) return null
+  if (options.preview && !options.token) {
+    console.warn('[Sanity] Missing preview token. Falling back to local content.')
+    return null
+  }
 
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 4500)
 
   try {
-    const url = new URL(queryEndpoint)
+    const url = new URL(options.preview ? apiQueryEndpoint : cdnQueryEndpoint)
     url.searchParams.set('query', query)
+    if (options.preview) url.searchParams.set('perspective', 'previewDrafts')
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(`$${key}`, JSON.stringify(value)))
 
     const response = await fetch(url, {
-      headers: {Accept: 'application/json'},
+      headers: {
+        Accept: 'application/json',
+        ...(options.preview && options.token ? {Authorization: `Bearer ${options.token}`} : {}),
+      },
       signal: controller.signal,
     })
 
@@ -96,8 +114,16 @@ let portfolioPagePromise: Promise<ResolvedPortfolioPage> | undefined
 let categoriesPromise: Promise<Category[]> | undefined
 let consultationPagePromise: Promise<ResolvedConsultationPage> | undefined
 
-export function getSiteSettings() {
+export function getSiteSettings(options: SanityFetchOptions = {}) {
+  if (options.preview) return fetchSiteSettings(options)
   siteSettingsPromise ??= (async () => {
+    return fetchSiteSettings(options)
+  })()
+
+  return siteSettingsPromise
+}
+
+async function fetchSiteSettings(options: SanityFetchOptions = {}) {
     const data = await sanityFetch<{
       siteTitle?: string
       siteDescription?: string
@@ -107,7 +133,6 @@ export function getSiteSettings() {
       headerLogo?: SanityImage
       footerLogo?: SanityImage
       menuLogo?: SanityImage
-      favicon?: SanityImage
       socialPreviewImage?: SanityImage
     }>(`*[_type == "siteSettings" && _id == "site-settings"][0]{
       siteTitle,
@@ -118,9 +143,8 @@ export function getSiteSettings() {
       headerLogo{alt, "url": asset->url},
       footerLogo{alt, "url": asset->url},
       menuLogo{alt, "url": asset->url},
-      favicon{alt, "url": asset->url},
       socialPreviewImage{alt, "url": asset->url}
-    }`)
+    }`, {}, options)
 
     if (!data) return fallbackSiteSettings
 
@@ -138,16 +162,21 @@ export function getSiteSettings() {
       logo: imageUrl(data.headerLogo, fallbackSiteSettings.logo),
       circleLogo: imageUrl(data.footerLogo, fallbackSiteSettings.circleLogo),
       squareLogo: imageUrl(data.menuLogo, fallbackSiteSettings.squareLogo),
-      favicon: imageUrl(data.favicon, fallbackSiteSettings.favicon),
+      menuLogo: imageUrl(data.menuLogo, fallbackSiteSettings.menuLogo),
       socialPreviewImage,
     }
-  })()
-
-  return siteSettingsPromise
 }
 
-export function getPortfolioPage() {
+export function getPortfolioPage(options: SanityFetchOptions = {}) {
+  if (options.preview) return fetchPortfolioPage(options)
   portfolioPagePromise ??= (async () => {
+    return fetchPortfolioPage(options)
+  })()
+
+  return portfolioPagePromise
+}
+
+async function fetchPortfolioPage(options: SanityFetchOptions = {}) {
     const data = await sanityFetch<{
       eyebrow?: string
       title?: string
@@ -156,7 +185,7 @@ export function getPortfolioPage() {
       eyebrow,
       title,
       intro
-    }`)
+    }`, {}, options)
 
     if (!data) return fallbackPortfolioPage
 
@@ -165,13 +194,18 @@ export function getPortfolioPage() {
       title: data.title || fallbackPortfolioPage.title,
       intro: data.intro || fallbackPortfolioPage.intro,
     }
-  })()
-
-  return portfolioPagePromise
 }
 
-export function getHomePage() {
+export function getHomePage(options: SanityFetchOptions = {}) {
+  if (options.preview) return fetchHomePage(options)
   homePagePromise ??= (async () => {
+    return fetchHomePage(options)
+  })()
+
+  return homePagePromise
+}
+
+async function fetchHomePage(options: SanityFetchOptions = {}) {
     const data = await sanityFetch<{
       heroKicker?: string
       heroTitle?: string
@@ -214,7 +248,7 @@ export function getHomePage() {
       consultationText,
       featuredImages[]{alt, "src": asset->url},
       aboutImage{alt, "src": asset->url}
-    }`)
+    }`, {}, options)
 
     if (!data) return fallbackHomePage
 
@@ -248,59 +282,94 @@ export function getHomePage() {
       consultationTitle: data.consultationTitle || fallbackHomePage.consultationTitle,
       consultationText: data.consultationText || fallbackHomePage.consultationText,
     }
-  })()
-
-  return homePagePromise
 }
 
-export function getCategories() {
+type SanityCategory = {
+  _id?: string
+  title?: string
+  shortTitle?: string
+  slug?: string
+  description?: string
+  previewImage?: SanityImage
+  gallery?: SanityImage[]
+}
+
+function resolveCategory(item: SanityCategory): Category | null {
+  if (!item.title && !item.slug) return null
+
+  const derivedSlug = item.slug || (item.title ? slugify(item.title) : '')
+  const fallback = fallbackCategories.find((category) => category.slug === derivedSlug)
+  const title = item.title || fallback?.title || 'Portfolio Category'
+  const images = item.gallery?.map((image) => galleryImage(image, title)).filter(Boolean) || fallback?.images || []
+
+  return {
+    title,
+    shortTitle: item.shortTitle || fallback?.shortTitle || title,
+    slug: derivedSlug || slugify(title),
+    description: item.description || fallback?.description || '',
+    previewImage: imageUrl(item.previewImage, fallback?.previewImage || images[0]?.src || ''),
+    images,
+  }
+}
+
+export function getCategories(options: SanityFetchOptions = {}) {
+  if (options.preview) return fetchCategories(options)
   categoriesPromise ??= (async () => {
-    const data = await sanityFetch<
-      Array<{
-        title?: string
-        shortTitle?: string
-        slug?: string
-        description?: string
-        previewImage?: SanityImage
-        gallery?: SanityImage[]
-      }>
-    >(`*[_type == "portfolioCategory" && hidden != true] | order(order asc, title asc) {
-      title,
-      shortTitle,
-      "slug": slug.current,
-      description,
-      previewImage{alt, "src": asset->url},
-      gallery[]{alt, caption, "src": asset->url}
-    }`)
-
-    if (!data?.length) return fallbackCategories
-
-    return data
-      .filter((item) => item.title || item.slug)
-      .map((item) => {
-        const derivedSlug = item.slug || (item.title ? slugify(item.title) : '')
-        const fallback = fallbackCategories.find((category) => category.slug === derivedSlug)
-        const title = item.title || fallback?.title || 'Portfolio Category'
-        const images =
-          item.gallery?.map((image) => galleryImage(image, title)).filter(Boolean) || fallback?.images || []
-
-        return {
-          title,
-          shortTitle: item.shortTitle || fallback?.shortTitle || title,
-          slug: derivedSlug || slugify(title),
-          description: item.description || fallback?.description || '',
-          previewImage: imageUrl(item.previewImage, fallback?.previewImage || images[0]?.src || ''),
-          images,
-        }
-      })
+    return fetchCategories(options)
   })()
 
   return categoriesPromise
 }
 
-export function getConsultationPage() {
-  consultationPagePromise ??= (async () => {
+async function fetchCategories(options: SanityFetchOptions = {}) {
     const data = await sanityFetch<{
+      ordered?: SanityCategory[]
+      all?: SanityCategory[]
+    }>(`{
+      "ordered": *[_type == "portfolioPage" && _id == "portfolio-page"][0].categoryOrder[]->{
+        _id,
+        title,
+        shortTitle,
+        "slug": slug.current,
+        description,
+        previewImage{alt, "src": asset->url},
+        gallery[]{alt, caption, "src": asset->url}
+      },
+      "all": *[_type == "portfolioCategory" && hidden != true] | order(order asc, title asc) {
+        _id,
+        title,
+        shortTitle,
+        "slug": slug.current,
+        description,
+        previewImage{alt, "src": asset->url},
+        gallery[]{alt, caption, "src": asset->url}
+      }
+    }`, {}, options)
+
+    if (!data?.all?.length) return fallbackCategories
+
+    const orderedIds = new Set((data.ordered || []).map((item) => item?._id).filter(Boolean))
+    const ordered = (data.ordered || []).map(resolveCategory).filter(Boolean) as Category[]
+    const unordered = data.all
+      .filter((item) => !item._id || !orderedIds.has(item._id))
+      .map(resolveCategory)
+      .filter(Boolean) as Category[]
+
+    return [...ordered, ...unordered]
+}
+
+export function getConsultationPage(options: SanityFetchOptions = {}) {
+  if (options.preview) return fetchConsultationPage(options)
+  consultationPagePromise ??= (async () => {
+    return fetchConsultationPage(options)
+  })()
+
+  return consultationPagePromise
+}
+
+async function fetchConsultationPage(options: SanityFetchOptions = {}) {
+    const data = await sanityFetch<{
+      eyebrow?: string
       title?: string
       intro?: string
       formTitle?: string
@@ -313,6 +382,7 @@ export function getConsultationPage() {
       messagePlaceholder?: string
       submitButtonLabel?: string
     }>(`*[_type == "consultationPage" && _id == "consultation-page"][0]{
+      eyebrow,
       title,
       intro,
       formTitle,
@@ -324,12 +394,13 @@ export function getConsultationPage() {
       messageLabel,
       messagePlaceholder,
       submitButtonLabel
-    }`)
+    }`, {}, options)
 
     if (!data) return fallbackConsultationPage
 
     return {
       ...fallbackConsultationPage,
+      eyebrow: data.eyebrow || fallbackConsultationPage.eyebrow,
       title: data.title || fallbackConsultationPage.title,
       intro: data.intro || fallbackConsultationPage.intro,
       formTitle: data.formTitle || fallbackConsultationPage.formTitle,
@@ -344,7 +415,4 @@ export function getConsultationPage() {
       messagePlaceholder: data.messagePlaceholder || fallbackConsultationPage.messagePlaceholder,
       submitButtonLabel: data.submitButtonLabel || fallbackConsultationPage.submitButtonLabel,
     }
-  })()
-
-  return consultationPagePromise
 }

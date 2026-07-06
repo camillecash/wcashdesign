@@ -1,0 +1,20 @@
+---
+export const prerender = false
+
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import CategoryPage from '../../../components/pages/CategoryPage.astro'
+import {getCategories} from '../../../data/sanity'
+import {previewOptions} from '../../../utils/preview'
+
+const options = previewOptions(Astro)
+const categories = await getCategories(options)
+const slug = Astro.params.slug || ''
+const category = categories.find((item) => item.slug === slug) || categories[0]
+
+if (!category) {
+  throw new Error('No portfolio categories are available for preview.')
+}
+---
+<BaseLayout title={category.title} description={category.description} current="portfolio" isPreview>
+  <CategoryPage category={category} categories={categories} isPreview />
+</BaseLayout>

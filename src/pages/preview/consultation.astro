@@ -1,0 +1,15 @@
+---
+export const prerender = false
+
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import ConsultationPage from '../../components/pages/ConsultationPage.astro'
+import {getConsultationPage, getSiteSettings} from '../../data/sanity'
+import {previewOptions} from '../../utils/preview'
+
+const options = previewOptions(Astro)
+const consultationPage = await getConsultationPage(options)
+const siteSettings = await getSiteSettings(options)
+---
+<BaseLayout title="Consultation" description={consultationPage.intro} current="consultation" isPreview>
+  <ConsultationPage consultationPage={consultationPage} siteSettings={siteSettings} />
+</BaseLayout>

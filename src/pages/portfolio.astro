@@ -1,22 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import CategoryCard from '../components/CategoryCard.astro'
+import PortfolioPage from '../components/pages/PortfolioPage.astro'
 import {getCategories, getPortfolioPage} from '../data/sanity'
 
 const categories = await getCategories()
 const portfolioPage = await getPortfolioPage()
 ---
 <BaseLayout title="Portfolio" description={portfolioPage.intro} current="portfolio">
-  <main>
-    <section class="page-hero">
-      <p class="kicker">{portfolioPage.eyebrow}</p>
-      <h1>{portfolioPage.title}</h1>
-      <p>{portfolioPage.intro}</p>
-    </section>
-    <section class="section portfolio-list-section">
-      <div class="category-grid portfolio-grid">
-        {categories.map((category, index) => <CategoryCard category={category} index={index} />)}
-      </div>
-    </section>
-  </main>
+  <PortfolioPage categories={categories} portfolioPage={portfolioPage} />
 </BaseLayout>

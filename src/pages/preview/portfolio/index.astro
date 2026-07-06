@@ -1,0 +1,15 @@
+---
+export const prerender = false
+
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import PortfolioPage from '../../../components/pages/PortfolioPage.astro'
+import {getCategories, getPortfolioPage} from '../../../data/sanity'
+import {previewOptions} from '../../../utils/preview'
+
+const options = previewOptions(Astro)
+const categories = await getCategories(options)
+const portfolioPage = await getPortfolioPage(options)
+---
+<BaseLayout title="Portfolio" description={portfolioPage.intro} current="portfolio" isPreview>
+  <PortfolioPage categories={categories} portfolioPage={portfolioPage} isPreview />
+</BaseLayout>

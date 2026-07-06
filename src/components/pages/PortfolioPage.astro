@@ -1,0 +1,25 @@
+---
+import CategoryCard from '../CategoryCard.astro'
+import type {Category} from '../../data/site'
+import type {ResolvedPortfolioPage} from '../../data/sanity'
+
+type Props = {
+  categories: Category[]
+  portfolioPage: ResolvedPortfolioPage
+  isPreview?: boolean
+}
+
+const {categories, portfolioPage, isPreview = false} = Astro.props
+---
+<main>
+  <section class="page-hero">
+    <p class="kicker">{portfolioPage.eyebrow}</p>
+    <h1>{portfolioPage.title}</h1>
+    <p>{portfolioPage.intro}</p>
+  </section>
+  <section class="section portfolio-list-section">
+    <div class="category-grid portfolio-grid">
+      {categories.map((category, index) => <CategoryCard category={category} index={index} isPreview={isPreview} />)}
+    </div>
+  </section>
+</main>

@@ -5,6 +5,7 @@ export const consultationPage = defineType({
   title: 'Consultation Page',
   type: 'document',
   fields: [
+    defineField({name: 'eyebrow', title: 'Eyebrow Text', type: 'string'}),
     defineField({name: 'title', title: 'Title', type: 'string', validation: (rule) => rule.required()}),
     defineField({name: 'intro', title: 'Intro Text', type: 'text', rows: 4}),
     defineField({name: 'formTitle', title: 'Form Title', type: 'string'}),

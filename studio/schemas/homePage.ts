@@ -12,7 +12,7 @@ export const homePage = defineType({
   title: 'Home Page',
   type: 'document',
   fields: [
-    defineField({name: 'heroKicker', title: 'Hero Kicker', type: 'string'}),
+    defineField({name: 'heroKicker', title: 'Hero Eyebrow Text', type: 'string'}),
     defineField({name: 'heroTitle', title: 'Hero Title', type: 'string', validation: (rule) => rule.required()}),
     defineField({name: 'heroText', title: 'Hero Text', type: 'text', rows: 4}),
     defineField({name: 'primaryAction', title: 'Primary Button Text', type: 'string'}),
@@ -27,6 +27,7 @@ export const homePage = defineType({
       of: [
         {
           type: 'image',
+          options: {hotspot: false},
           fields: [hiddenImageAlt],
         },
       ],
@@ -55,6 +56,7 @@ export const homePage = defineType({
       name: 'aboutImage',
       title: 'About Image',
       type: 'image',
+      options: {hotspot: false},
       fields: [hiddenImageAlt],
     }),
     defineField({name: 'contactLabel', title: 'Contact Links Label', type: 'string'}),

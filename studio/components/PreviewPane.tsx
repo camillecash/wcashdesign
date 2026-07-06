@@ -18,14 +18,19 @@ function withBase(path: string) {
   return new URL(path, previewBaseUrl).toString()
 }
 
+function previewPath(path: string) {
+  return `/preview${path === '/' ? '/' : path}`
+}
+
 export function PreviewPane() {
   const client = useClient({apiVersion: '2026-06-29'})
-  const {documentId, documentType} = useDocumentPane()
+  const {displayed, documentId, documentType, schemaType, value} = useDocumentPane()
   const [url, setUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const publishedId = useMemo(() => documentId.replace(/^drafts\./, ''), [documentId])
   const draftId = useMemo(() => `drafts.${publishedId}`, [publishedId])
+  const activeType = documentType || value?._type || displayed?._type || schemaType?.name
 
   useEffect(() => {
     let isMounted = true
@@ -33,31 +38,43 @@ export function PreviewPane() {
     async function resolveUrl() {
       setIsLoading(true)
 
-      if (documentType === 'homePage' || documentType === 'siteSettings') {
+      if (activeType === 'homePage' || activeType === 'siteSettings') {
         if (isMounted) {
-          setUrl(withBase('/'))
+          setUrl(withBase(previewPath('/')))
           setIsLoading(false)
         }
         return
       }
 
-      if (documentType === 'portfolioPage') {
+      if (activeType === 'portfolioPage') {
         if (isMounted) {
-          setUrl(withBase('/portfolio/'))
+          setUrl(withBase(previewPath('/portfolio/')))
           setIsLoading(false)
         }
         return
       }
 
-      if (documentType === 'consultationPage') {
+      if (activeType === 'consultationPage') {
         if (isMounted) {
-          setUrl(withBase('/consultation/'))
+          setUrl(withBase(previewPath('/consultation/')))
           setIsLoading(false)
         }
         return
       }
 
-      if (documentType === 'portfolioCategory') {
+      if (activeType === 'portfolioCategory') {
+        const openDocument = (displayed || value) as {title?: string; slug?: {current?: string}} | null
+        const openSlug = openDocument?.slug?.current
+        const openTitle = openDocument?.title
+
+        if (openSlug || openTitle) {
+          if (isMounted) {
+            setUrl(withBase(previewPath(`/portfolio/${openSlug || slugify(openTitle || '')}/`)))
+            setIsLoading(false)
+          }
+          return
+        }
+
         const document = await client.fetch<{title?: string; slug?: {current?: string}} | null>(
           `*[_id in [$draftId, $publishedId]] | order(_id match "drafts.*" desc)[0]{
             title,
@@ -68,21 +85,30 @@ export function PreviewPane() {
         const slug = document?.slug?.current || (document?.title ? slugify(document.title) : '')
 
         if (isMounted) {
-          setUrl(slug ? withBase(`/portfolio/${slug}/`) : withBase('/portfolio/'))
+          setUrl(slug ? withBase(previewPath(`/portfolio/${slug}/`)) : withBase(previewPath('/portfolio/')))
+          setIsLoading(false)
+        }
+        return
+      }
+
+      if (publishedId.startsWith('portfolio-category-')) {
+        const slug = publishedId.replace(/^portfolio-category-/, '')
+        if (isMounted) {
+          setUrl(withBase(previewPath(`/portfolio/${slug}/`)))
           setIsLoading(false)
         }
         return
       }
 
       if (isMounted) {
-        setUrl(withBase('/'))
+        setUrl(withBase(previewPath('/')))
         setIsLoading(false)
       }
     }
 
     resolveUrl().catch(() => {
       if (isMounted) {
-        setUrl(withBase('/'))
+        setUrl(withBase(previewPath('/')))
         setIsLoading(false)
       }
     })
@@ -90,7 +116,7 @@ export function PreviewPane() {
     return () => {
       isMounted = false
     }
-  }, [client, documentType, draftId, publishedId])
+  }, [activeType, client, displayed, draftId, publishedId, value])
 
   if (isLoading || !url) {
     return (

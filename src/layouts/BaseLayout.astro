@@ -4,21 +4,25 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import {siteSettings} from '../data/site'
 import {getCategories, getSiteSettings} from '../data/sanity'
+import {previewOptions} from '../utils/preview'
 
 type Props = {
   title?: string
   description?: string
   current?: 'home' | 'portfolio' | 'consultation'
+  isPreview?: boolean
 }
 
 const {
   title = siteSettings.title,
   description = siteSettings.description,
   current = 'home',
+  isPreview = false,
 } = Astro.props
 
-const settings = await getSiteSettings()
-const navCategories = await getCategories()
+const options = isPreview ? previewOptions(Astro) : undefined
+const settings = await getSiteSettings(options)
+const navCategories = await getCategories(options)
 const pageDescription = description || settings.description
 const pageTitle = title === siteSettings.title || title === settings.title ? settings.title : `${title} | ${settings.title}`
 const previewImage = settings.socialPreviewImage || settings.squareLogo
@@ -30,6 +34,7 @@ const absolutePreviewImage = previewImage.startsWith('http') ? previewImage : `$
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={pageDescription} />
+    {isPreview && <meta name="robots" content="noindex,nofollow" />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
@@ -40,7 +45,8 @@ const absolutePreviewImage = previewImage.startsWith('http') ? previewImage : `$
   </head>
   <body>
     <div class="site-shell">
-      <Header current={current} settings={settings} categories={navCategories} />
+      {isPreview && <div class="preview-banner">Draft preview — changes here may not be published yet</div>}
+      <Header current={current} settings={settings} categories={navCategories} isPreview={isPreview} />
       <slot />
       <Footer settings={settings} />
     </div>

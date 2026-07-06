@@ -6,17 +6,19 @@ type Props = {
   current?: string
   settings?: ResolvedSiteSettings
   categories?: Category[]
+  isPreview?: boolean
 }
 
-const {current = 'home', settings = fallbackSiteSettings, categories = fallbackCategories} = Astro.props
+const {current = 'home', settings = fallbackSiteSettings, categories = fallbackCategories, isPreview = false} = Astro.props
+const pagePath = (path: string) => (isPreview ? `/preview${path === '/' ? '' : path}` : path)
 const links = [
-  {label: 'Home', href: '/', key: 'home'},
-  {label: 'Portfolio', href: '/portfolio/', key: 'portfolio'},
-  {label: 'Consultation ↗', href: '/consultation/', key: 'consultation', cta: true},
+  {label: 'Home', href: pagePath('/'), key: 'home'},
+  {label: 'Portfolio', href: pagePath('/portfolio/'), key: 'portfolio'},
+  {label: 'Consultation ↗', href: pagePath('/consultation/'), key: 'consultation', cta: true},
 ]
 ---
 <header class="site-header">
-  <a class="brand" href="/" aria-label="WCashDesign home">
+  <a class="brand" href={pagePath('/')} aria-label="WCashDesign home">
     <span class="brand-backdrop">
       <img src={settings.logo} alt="WCashDesign" />
     </span>
@@ -32,7 +34,7 @@ const links = [
   <div class="slide-menu" data-slide-menu>
     <div class="slide-menu-panel">
       <div class="slide-menu-top">
-        <img src={settings.squareLogo} alt="" />
+        <img src={settings.menuLogo || settings.squareLogo} alt="" />
         <button type="button" aria-label="Close menu" data-menu-close>Close</button>
       </div>
       <nav aria-label="Mobile navigation">
@@ -40,7 +42,7 @@ const links = [
       </nav>
       <div class="slide-categories">
         <p>Portfolio categories</p>
-        {categories.map((category) => <a href={`/portfolio/${category.slug}/`}>{category.title}</a>)}
+        {categories.map((category) => <a href={pagePath(`/portfolio/${category.slug}/`)}>{category.title}</a>)}
       </div>
     </div>
   </div>

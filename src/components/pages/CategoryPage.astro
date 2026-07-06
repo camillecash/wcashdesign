@@ -1,0 +1,74 @@
+---
+import GalleryLightbox from '../GalleryLightbox.astro'
+import type {Category} from '../../data/site'
+import {assetPath} from '../../utils/paths'
+
+type Props = {
+  category: Category
+  categories: Category[]
+  isPreview?: boolean
+}
+
+const {category, categories, isPreview = false} = Astro.props
+const pagePath = (path: string) => (isPreview ? `/preview${path}` : path)
+---
+<main>
+  <section class="category-hero">
+    <div class="category-hero-top">
+      <a class="back-link" href={pagePath('/portfolio/')}>← Portfolio</a>
+      <div class="category-switcher">
+        <button type="button" aria-expanded="false" data-category-toggle>
+          View another category
+          <span>{category.title}</span>
+        </button>
+        <div class="category-switcher-menu" data-category-menu>
+          {categories.map((item) => (
+            <a class={item.slug === category.slug ? 'is-current' : undefined} href={pagePath(`/portfolio/${item.slug}/`)}>
+              {item.title}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+    <p class="kicker">{category.shortTitle}</p>
+    <h1>{category.title}</h1>
+    <p>{category.description}</p>
+  </section>
+
+  <section class="gallery-section" aria-label={`${category.title} gallery`}>
+    {category.images.map((image, index) => (
+      <button
+        class={`gallery-tile tile-${(index % 6) + 1} gallery-${category.slug}`}
+        type="button"
+        data-gallery-button
+        data-full={assetPath(image.src)}
+        data-alt={image.alt}
+        data-caption={image.caption || image.alt}
+        data-reveal
+        style={`--delay:${index * 25}ms`}
+      >
+        <img src={assetPath(image.src)} alt={image.alt} loading={index > 5 ? 'lazy' : 'eager'} />
+        <span>{image.caption || 'Expand'}</span>
+      </button>
+    ))}
+  </section>
+  <GalleryLightbox />
+</main>
+
+<script>
+  const categoryToggle = document.querySelector('[data-category-toggle]')
+  const categoryMenu = document.querySelector('[data-category-menu]')
+
+  categoryToggle?.addEventListener('click', () => {
+    const isOpen = categoryMenu?.classList.toggle('is-open')
+    categoryToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false')
+  })
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return
+    if (!event.target.closest('.category-switcher')) {
+      categoryMenu?.classList.remove('is-open')
+      categoryToggle?.setAttribute('aria-expanded', 'false')
+    }
+  })
+</script>

@@ -5,11 +5,13 @@ import {assetPath} from '../utils/paths'
 type Props = {
   category: Category
   index?: number
+  isPreview?: boolean
 }
 
-const {category, index = 0} = Astro.props
+const {category, index = 0, isPreview = false} = Astro.props
+const href = `${isPreview ? '/preview' : ''}/portfolio/${category.slug}/`
 ---
-<a class={`category-card category-${category.slug}`} href={`/portfolio/${category.slug}/`} data-reveal style={`--delay:${index * 18}ms`}>
+<a class={`category-card category-${category.slug}`} href={href} data-reveal style={`--delay:${index * 18}ms`}>
   <div class="category-image">
     <img src={assetPath(category.previewImage)} alt={category.title} loading={index > 2 ? 'lazy' : 'eager'} />
     <span>View more</span>
