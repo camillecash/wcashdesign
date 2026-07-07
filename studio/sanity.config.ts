@@ -4,6 +4,7 @@ import {presentationTool} from 'sanity/presentation'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
 import {PreviewPane} from './components/PreviewPane'
+import {UnpublishedChangesPane} from './components/UnpublishedChangesPane'
 
 const projectId = 'mg9lwf9m'
 const dataset = 'production'
@@ -41,15 +42,24 @@ export default defineConfig({
           .title('Content')
           .items([
             S.listItem()
+              .id('unpublishedChanges')
+              .title('Unpublished Changes')
+              .child(S.component(UnpublishedChangesPane).title('Unpublished Changes')),
+            S.divider(),
+            S.listItem()
+              .id('siteSettings')
               .title('Site Settings')
               .child(previewableDocument('siteSettings', 'site-settings')),
             S.listItem()
+              .id('homePage')
               .title('Home Page')
               .child(previewableDocument('homePage', 'home-page')),
             S.listItem()
+              .id('portfolioPage')
               .title('Portfolio Page')
               .child(previewableDocument('portfolioPage', 'portfolio-page')),
             S.listItem()
+              .id('portfolioCategory')
               .title('Portfolio Categories')
               .child(
                 S.documentTypeList('portfolioCategory')
@@ -58,6 +68,7 @@ export default defineConfig({
                   .child((documentId) => previewableDocument('portfolioCategory', documentId))
               ),
             S.listItem()
+              .id('consultationPage')
               .title('Consultation Page')
               .child(previewableDocument('consultationPage', 'consultation-page')),
           ])
