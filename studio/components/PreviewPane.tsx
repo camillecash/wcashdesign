@@ -84,7 +84,7 @@ export function PreviewPane() {
         }
 
         const document = await client.fetch<{title?: string; slug?: {current?: string}} | null>(
-          `*[_id in [$draftId, $publishedId]] | order(_id match "drafts.*" desc)[0]{
+          `*[_id in [$draftId, $publishedId]] | order(_id asc)[0]{
             title,
             slug
           }`,

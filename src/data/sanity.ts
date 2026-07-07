@@ -92,7 +92,7 @@ function singletonFilter(type: string, id: string, options: SanityFetchOptions =
 }
 
 function preferDraftOrder(options: SanityFetchOptions = {}) {
-  return options.preview ? ` | order(_id match "drafts.*" desc)` : ''
+  return options.preview ? ` | order(_id asc)` : ''
 }
 
 function publishedId(id: string | undefined) {

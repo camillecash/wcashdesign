@@ -31,7 +31,7 @@ export const GET: APIRoute = async (context) => {
         aboutTitle?: string
       }>
     >(
-      `*[_type == "homePage" && _id in ["drafts.home-page", "home-page"]] | order(_id match "drafts.*" desc) {
+      `*[_type == "homePage" && _id in ["drafts.home-page", "home-page"]] | order(_id asc) {
         _id,
         _updatedAt,
         heroText,
