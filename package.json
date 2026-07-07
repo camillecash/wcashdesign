@@ -13,11 +13,14 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.6",
+    "@astrojs/react": "^6.0.1",
     "@astrojs/sitemap": "^3.6.0",
     "@sanity/astro": "^3.4.2",
     "@sanity/client": "^7.13.0",
     "@sanity/visual-editing": "^5.4.5",
-    "astro": "^5.16.5"
+    "astro": "^5.16.5",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "tsx": "^4.21.0",
