@@ -99,6 +99,13 @@ function publishedId(id: string | undefined) {
   return id?.replace(/^drafts\./, '') || ''
 }
 
+function preferredDocument<T extends {_id?: string}>(documents: T[] | null | undefined, options: SanityFetchOptions = {}) {
+  if (!documents?.length) return null
+  if (!options.preview) return documents[0]
+
+  return documents.find((document) => document._id?.startsWith('drafts.')) || documents[0]
+}
+
 async function sanityFetch<T>(
   query: string,
   params: Record<string, string | number> = {},
@@ -170,7 +177,8 @@ export function getSiteSettings(options: SanityFetchOptions = {}) {
 }
 
 async function fetchSiteSettings(options: SanityFetchOptions = {}) {
-    const data = await sanityFetch<{
+    const documents = await sanityFetch<Array<{
+      _id?: string
       siteTitle?: string
       siteDescription?: string
       phone?: string
@@ -180,7 +188,8 @@ async function fetchSiteSettings(options: SanityFetchOptions = {}) {
       footerLogo?: SanityImage
       menuLogo?: SanityImage
       socialPreviewImage?: SanityImage
-    }>(`*[${singletonFilter('siteSettings', 'site-settings', options)}]${preferDraftOrder(options)}[0]{
+    }>>(`*[${singletonFilter('siteSettings', 'site-settings', options)}]{
+      _id,
       siteTitle,
       siteDescription,
       phone,
@@ -191,6 +200,7 @@ async function fetchSiteSettings(options: SanityFetchOptions = {}) {
       menuLogo{alt, "url": asset->url},
       socialPreviewImage{alt, "url": asset->url}
     }`, {}, options)
+    const data = preferredDocument(documents, options)
 
     if (!data) return fallbackSiteSettings
 
@@ -223,15 +233,18 @@ export function getPortfolioPage(options: SanityFetchOptions = {}) {
 }
 
 async function fetchPortfolioPage(options: SanityFetchOptions = {}) {
-    const data = await sanityFetch<{
+    const documents = await sanityFetch<Array<{
+      _id?: string
       eyebrow?: string
       title?: string
       intro?: string
-    }>(`*[${singletonFilter('portfolioPage', 'portfolio-page', options)}]${preferDraftOrder(options)}[0]{
+    }>>(`*[${singletonFilter('portfolioPage', 'portfolio-page', options)}]{
+      _id,
       eyebrow,
       title,
       intro
     }`, {}, options)
+    const data = preferredDocument(documents, options)
 
     if (!data) return fallbackPortfolioPage
 
@@ -252,7 +265,8 @@ export function getHomePage(options: SanityFetchOptions = {}) {
 }
 
 async function fetchHomePage(options: SanityFetchOptions = {}) {
-    const data = await sanityFetch<{
+    const documents = await sanityFetch<Array<{
+      _id?: string
       heroKicker?: string
       heroTitle?: string
       heroText?: string
@@ -273,7 +287,8 @@ async function fetchHomePage(options: SanityFetchOptions = {}) {
       consultationKicker?: string
       consultationTitle?: string
       consultationText?: string
-    }>(`*[${singletonFilter('homePage', 'home-page', options)}]${preferDraftOrder(options)}[0]{
+    }>>(`*[${singletonFilter('homePage', 'home-page', options)}]{
+      _id,
       heroKicker,
       heroTitle,
       heroText,
@@ -295,6 +310,7 @@ async function fetchHomePage(options: SanityFetchOptions = {}) {
       featuredImages[]{alt, "src": asset->url},
       aboutImage{alt, "src": asset->url}
     }`, {}, options)
+    const data = preferredDocument(documents, options)
 
     if (!data) return fallbackHomePage
 
@@ -429,7 +445,8 @@ export function getConsultationPage(options: SanityFetchOptions = {}) {
 }
 
 async function fetchConsultationPage(options: SanityFetchOptions = {}) {
-    const data = await sanityFetch<{
+    const documents = await sanityFetch<Array<{
+      _id?: string
       eyebrow?: string
       title?: string
       intro?: string
@@ -442,7 +459,8 @@ async function fetchConsultationPage(options: SanityFetchOptions = {}) {
       messageLabel?: string
       messagePlaceholder?: string
       submitButtonLabel?: string
-    }>(`*[${singletonFilter('consultationPage', 'consultation-page', options)}]${preferDraftOrder(options)}[0]{
+    }>>(`*[${singletonFilter('consultationPage', 'consultation-page', options)}]{
+      _id,
       eyebrow,
       title,
       intro,
@@ -456,6 +474,7 @@ async function fetchConsultationPage(options: SanityFetchOptions = {}) {
       messagePlaceholder,
       submitButtonLabel
     }`, {}, options)
+    const data = preferredDocument(documents, options)
 
     if (!data) return fallbackConsultationPage
 
