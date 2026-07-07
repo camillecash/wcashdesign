@@ -1,6 +1,7 @@
 ---
 import {categories as fallbackCategories, siteSettings as fallbackSiteSettings, type Category} from '../data/site'
 import type {ResolvedSiteSettings} from '../data/sanity'
+import {stegaClean} from '@sanity/client/stega'
 
 type Props = {
   current?: string
@@ -11,6 +12,7 @@ type Props = {
 
 const {current = 'home', settings = fallbackSiteSettings, categories = fallbackCategories, isPreview = false} = Astro.props
 const pagePath = (path: string) => (isPreview ? `/preview${path === '/' ? '' : path}` : path)
+const cleanText = (value: string) => stegaClean(value)
 const links = [
   {label: 'Home', href: pagePath('/'), key: 'home'},
   {label: 'Portfolio', href: pagePath('/portfolio/'), key: 'portfolio'},
@@ -42,7 +44,7 @@ const links = [
       </nav>
       <div class="slide-categories">
         <p>Portfolio categories</p>
-        {categories.map((category) => <a href={pagePath(`/portfolio/${category.slug}/`)}>{category.title}</a>)}
+        {categories.map((category) => <a href={pagePath(`/portfolio/${category.slug}/`)}>{cleanText(category.title)}</a>)}
       </div>
     </div>
   </div>

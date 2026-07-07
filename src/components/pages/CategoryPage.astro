@@ -2,6 +2,7 @@
 import GalleryLightbox from '../GalleryLightbox.astro'
 import type {Category} from '../../data/site'
 import {assetPath} from '../../utils/paths'
+import {stegaClean} from '@sanity/client/stega'
 
 type Props = {
   category: Category
@@ -11,6 +12,7 @@ type Props = {
 
 const {category, categories, isPreview = false} = Astro.props
 const pagePath = (path: string) => (isPreview ? `/preview${path}` : path)
+const cleanText = (value: string) => stegaClean(value)
 ---
 <main>
   <section class="category-hero">
@@ -19,12 +21,12 @@ const pagePath = (path: string) => (isPreview ? `/preview${path}` : path)
       <div class="category-switcher">
         <button type="button" aria-expanded="false" data-category-toggle>
           View another category
-          <span>{category.title}</span>
+          <span>{cleanText(category.title)}</span>
         </button>
         <div class="category-switcher-menu" data-category-menu>
           {categories.map((item) => (
             <a class={item.slug === category.slug ? 'is-current' : undefined} href={pagePath(`/portfolio/${item.slug}/`)}>
-              {item.title}
+              {cleanText(item.title)}
             </a>
           ))}
         </div>
