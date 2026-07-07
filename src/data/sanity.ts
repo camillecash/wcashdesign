@@ -75,7 +75,7 @@ function getClient(options: SanityFetchOptions = {}) {
     dataset,
     apiVersion,
     useCdn: !preview,
-    perspective: preview ? 'drafts' : 'published',
+    perspective: preview ? 'raw' : 'published',
     token: preview ? options.token : undefined,
     stega: {
       enabled: preview,
@@ -93,6 +93,10 @@ function singletonFilter(type: string, id: string, options: SanityFetchOptions =
 
 function preferDraftOrder(options: SanityFetchOptions = {}) {
   return options.preview ? ` | order(_id match "drafts.*" desc)` : ''
+}
+
+function publishedId(id: string | undefined) {
+  return id?.replace(/^drafts\./, '') || ''
 }
 
 async function sanityFetch<T>(
@@ -390,10 +394,25 @@ async function fetchCategories(options: SanityFetchOptions = {}) {
 
     if (!data?.all?.length) return fallbackCategories
 
-    const orderedIds = new Set((data.ordered || []).map((item) => item?._id).filter(Boolean))
-    const ordered = (data.ordered || []).map(resolveCategory).filter(Boolean) as Category[]
-    const unordered = data.all
-      .filter((item) => !item._id || !orderedIds.has(item._id))
+    const categoriesById = new Map<string, SanityCategory>()
+
+    for (const item of data.all || []) {
+      const id = publishedId(item._id)
+      if (!id) continue
+
+      const existing = categoriesById.get(id)
+      if (!existing || item._id?.startsWith('drafts.')) {
+        categoriesById.set(id, item)
+      }
+    }
+
+    const orderedIds = new Set((data.ordered || []).map((item) => publishedId(item?._id)).filter(Boolean))
+    const ordered = (data.ordered || [])
+      .map((item) => categoriesById.get(publishedId(item?._id)) || item)
+      .map(resolveCategory)
+      .filter(Boolean) as Category[]
+    const unordered = Array.from(categoriesById.values())
+      .filter((item) => !item._id || !orderedIds.has(publishedId(item._id)))
       .map(resolveCategory)
       .filter(Boolean) as Category[]
 

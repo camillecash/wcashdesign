@@ -54,6 +54,19 @@ const absolutePreviewImage = previewImage.startsWith('http') ? previewImage : `$
     </div>
     <script is:inline>
       if (document.body.classList.contains('is-preview')) {
+        const scrollKey = `wcash-preview-scroll:${window.location.pathname}`
+        const savedScroll = sessionStorage.getItem(scrollKey)
+
+        if (savedScroll) {
+          requestAnimationFrame(() => {
+            window.scrollTo({top: Number(savedScroll) || 0, behavior: 'instant'})
+          })
+        }
+
+        window.addEventListener('beforeunload', () => {
+          sessionStorage.setItem(scrollKey, String(window.scrollY))
+        })
+
         document.querySelectorAll('[data-reveal]').forEach((item) => item.classList.add('is-visible'))
       } else {
       const revealItems = document.querySelectorAll('[data-reveal]')
