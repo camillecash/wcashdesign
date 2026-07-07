@@ -31,6 +31,14 @@ export function PreviewPane() {
   const publishedId = useMemo(() => documentId.replace(/^drafts\./, ''), [documentId])
   const draftId = useMemo(() => `drafts.${publishedId}`, [publishedId])
   const activeType = documentType || value?._type || displayed?._type || schemaType?.name
+  const refreshKey = useMemo(() => JSON.stringify(displayed || value || {}), [displayed, value])
+  const iframeUrl = useMemo(() => {
+    if (!url) return null
+
+    const nextUrl = new URL(url)
+    nextUrl.searchParams.set('_previewRefresh', String(Date.now()))
+    return nextUrl.toString()
+  }, [refreshKey, url])
 
   useEffect(() => {
     let isMounted = true
@@ -118,7 +126,7 @@ export function PreviewPane() {
     }
   }, [activeType, client, displayed, draftId, publishedId, value])
 
-  if (isLoading || !url) {
+  if (isLoading || !iframeUrl) {
     return (
       <Flex align="center" justify="center" height="fill">
         <Spinner muted />
@@ -130,7 +138,7 @@ export function PreviewPane() {
     <Card height="fill" tone="transparent">
       <iframe
         title="Website preview"
-        src={url}
+        src={iframeUrl}
         style={{
           width: '100%',
           height: '100%',
