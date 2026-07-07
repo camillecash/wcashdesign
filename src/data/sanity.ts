@@ -7,13 +7,13 @@ import {
   type Category,
   type GalleryImage,
 } from './site'
+import {createClient} from '@sanity/client'
 
 const projectId = 'mg9lwf9m'
 const dataset = 'production'
 const apiVersion = '2026-06-29'
 const useSanity = import.meta.env.USE_SANITY !== 'false'
-const cdnQueryEndpoint = `https://${projectId}.apicdn.sanity.io/v${apiVersion}/data/query/${dataset}`
-const apiQueryEndpoint = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}`
+const studioUrl = 'https://wcashdesign.sanity.studio'
 
 export type SanityFetchOptions = {
   preview?: boolean
@@ -37,6 +37,54 @@ type SanityImage = {
   caption?: string
 }
 
+function shouldEncodePreviewMetadata(props: {
+  sourcePath?: Array<string | number>
+  resultPath?: Array<string | number>
+  filterDefault: (props: unknown) => boolean
+}) {
+  const path = [...(props.sourcePath || []), ...(props.resultPath || [])].map(String)
+  const fieldName = path[path.length - 1]
+
+  if (
+    [
+      '_id',
+      '_type',
+      '_key',
+      'slug',
+      'src',
+      'url',
+      'href',
+      'link',
+      'phone',
+      'email',
+      'instagram',
+      'formspreeEndpoint',
+    ].includes(fieldName)
+  ) {
+    return false
+  }
+
+  return props.filterDefault(props)
+}
+
+function getClient(options: SanityFetchOptions = {}) {
+  const preview = Boolean(options.preview)
+
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    useCdn: !preview,
+    perspective: preview ? 'drafts' : 'published',
+    token: preview ? options.token : undefined,
+    stega: {
+      enabled: preview,
+      studioUrl,
+      filter: shouldEncodePreviewMetadata,
+    },
+  })
+}
+
 async function sanityFetch<T>(
   query: string,
   params: Record<string, string | number> = {},
@@ -52,25 +100,9 @@ async function sanityFetch<T>(
   const timeout = setTimeout(() => controller.abort(), 4500)
 
   try {
-    const url = new URL(options.preview ? apiQueryEndpoint : cdnQueryEndpoint)
-    url.searchParams.set('query', query)
-    if (options.preview) url.searchParams.set('perspective', 'previewDrafts')
-    Object.entries(params).forEach(([key, value]) => url.searchParams.set(`$${key}`, JSON.stringify(value)))
-
-    const response = await fetch(url, {
-      headers: {
-        Accept: 'application/json',
-        ...(options.preview && options.token ? {Authorization: `Bearer ${options.token}`} : {}),
-      },
+    return await getClient(options).fetch<T>(query, params, {
       signal: controller.signal,
     })
-
-    if (!response.ok) {
-      throw new Error(`Sanity request failed: ${response.status} ${response.statusText}`)
-    }
-
-    const body = (await response.json()) as {result: T}
-    return body.result
   } catch (error) {
     console.warn('[Sanity] Falling back to local content:', error instanceof Error ? error.message : error)
     return null
