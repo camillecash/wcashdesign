@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro'
 import {siteSettings} from '../data/site'
 import {getCategories, getSiteSettings} from '../data/sanity'
 import {previewOptions} from '../utils/preview'
+import {VisualEditing} from '@sanity/astro/visual-editing'
 
 type Props = {
   title?: string
@@ -49,6 +50,7 @@ const absolutePreviewImage = previewImage.startsWith('http') ? previewImage : `$
       <Header current={current} settings={settings} categories={navCategories} isPreview={isPreview} />
       <slot />
       <Footer settings={settings} />
+      <VisualEditing enabled={isPreview} />
     </div>
     <script is:inline>
       const revealItems = document.querySelectorAll('[data-reveal]')
