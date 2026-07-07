@@ -85,6 +85,16 @@ function getClient(options: SanityFetchOptions = {}) {
   })
 }
 
+function singletonFilter(type: string, id: string, options: SanityFetchOptions = {}) {
+  if (!options.preview) return `_type == "${type}" && _id == "${id}"`
+
+  return `_type == "${type}" && _id in ["drafts.${id}", "${id}"]`
+}
+
+function preferDraftOrder(options: SanityFetchOptions = {}) {
+  return options.preview ? ` | order(_id match "drafts.*" desc)` : ''
+}
+
 async function sanityFetch<T>(
   query: string,
   params: Record<string, string | number> = {},
@@ -166,7 +176,7 @@ async function fetchSiteSettings(options: SanityFetchOptions = {}) {
       footerLogo?: SanityImage
       menuLogo?: SanityImage
       socialPreviewImage?: SanityImage
-    }>(`*[_type == "siteSettings" && _id == "site-settings"][0]{
+    }>(`*[${singletonFilter('siteSettings', 'site-settings', options)}]${preferDraftOrder(options)}[0]{
       siteTitle,
       siteDescription,
       phone,
@@ -213,7 +223,7 @@ async function fetchPortfolioPage(options: SanityFetchOptions = {}) {
       eyebrow?: string
       title?: string
       intro?: string
-    }>(`*[_type == "portfolioPage" && _id == "portfolio-page"][0]{
+    }>(`*[${singletonFilter('portfolioPage', 'portfolio-page', options)}]${preferDraftOrder(options)}[0]{
       eyebrow,
       title,
       intro
@@ -259,7 +269,7 @@ async function fetchHomePage(options: SanityFetchOptions = {}) {
       consultationKicker?: string
       consultationTitle?: string
       consultationText?: string
-    }>(`*[_type == "homePage" && _id == "home-page"][0]{
+    }>(`*[${singletonFilter('homePage', 'home-page', options)}]${preferDraftOrder(options)}[0]{
       heroKicker,
       heroTitle,
       heroText,
@@ -358,7 +368,7 @@ async function fetchCategories(options: SanityFetchOptions = {}) {
       ordered?: SanityCategory[]
       all?: SanityCategory[]
     }>(`{
-      "ordered": *[_type == "portfolioPage" && _id == "portfolio-page"][0].categoryOrder[]->{
+      "ordered": *[${singletonFilter('portfolioPage', 'portfolio-page', options)}]${preferDraftOrder(options)}[0].categoryOrder[]->{
         _id,
         title,
         shortTitle,
@@ -413,7 +423,7 @@ async function fetchConsultationPage(options: SanityFetchOptions = {}) {
       messageLabel?: string
       messagePlaceholder?: string
       submitButtonLabel?: string
-    }>(`*[_type == "consultationPage" && _id == "consultation-page"][0]{
+    }>(`*[${singletonFilter('consultationPage', 'consultation-page', options)}]${preferDraftOrder(options)}[0]{
       eyebrow,
       title,
       intro,
