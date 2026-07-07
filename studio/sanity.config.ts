@@ -10,6 +10,11 @@ const dataset = 'production'
 const previewBaseUrl = 'https://wcashdesign.com'
 const previewableTypes = ['siteSettings', 'homePage', 'portfolioPage', 'portfolioCategory', 'consultationPage']
 const previewPath = (path: string) => `/preview${path === '/' ? '/' : path}`
+const livePreviewLocations = (locations: {title: string; href: string}[]) => ({
+  message: 'Open this page in Live Preview',
+  tone: 'positive' as const,
+  locations,
+})
 
 export default defineConfig({
   name: 'wcashdesign',
@@ -139,31 +144,23 @@ export default defineConfig({
         locations: {
           siteSettings: {
             select: {},
-            resolve: () => ({
-              message: 'Open this page in Live Preview',
-              locations: [{title: 'Preview Home Page', href: previewPath('/')}],
-            }),
+            resolve: () => livePreviewLocations([{title: 'Preview Home Page', href: previewPath('/')}]),
           },
           homePage: {
             select: {},
-            resolve: () => ({
-              message: 'Open this page in Live Preview',
-              locations: [{title: 'Preview Home Page', href: previewPath('/')}],
-            }),
+            resolve: () => livePreviewLocations([{title: 'Preview Home Page', href: previewPath('/')}]),
           },
           portfolioPage: {
             select: {},
-            resolve: () => ({
-              message: 'Open this page in Live Preview',
-              locations: [{title: 'Preview Portfolio Page', href: previewPath('/portfolio/')}],
-            }),
+            resolve: () =>
+              livePreviewLocations([{title: 'Preview Portfolio Page', href: previewPath('/portfolio/')}]),
           },
           consultationPage: {
             select: {},
-            resolve: () => ({
-              message: 'Open this page in Live Preview',
-              locations: [{title: 'Preview Consultation Page', href: previewPath('/consultation/')}],
-            }),
+            resolve: () =>
+              livePreviewLocations([
+                {title: 'Preview Consultation Page', href: previewPath('/consultation/')},
+              ]),
           },
           portfolioCategory: {
             select: {title: 'title', slug: 'slug.current'},
@@ -171,15 +168,12 @@ export default defineConfig({
               const title = doc?.title || 'Portfolio category'
               const slug = doc?.slug
 
-              return {
-                message: 'Open this page in Live Preview',
-                locations: [
-                  {
-                    title: `Preview ${title}`,
-                    href: slug ? previewPath(`/portfolio/${slug}/`) : previewPath('/portfolio/'),
-                  },
-                ],
-              }
+              return livePreviewLocations([
+                {
+                  title: `Preview ${title}`,
+                  href: slug ? previewPath(`/portfolio/${slug}/`) : previewPath('/portfolio/'),
+                },
+              ])
             },
           },
         },
